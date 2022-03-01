@@ -8,7 +8,7 @@ public class Product {
 
     @Id
     @Column(nullable = false)
-    @GeneratedValue
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long category_id;
