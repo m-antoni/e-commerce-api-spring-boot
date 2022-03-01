@@ -37,8 +37,8 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public void createProduct(Product product){
-        productRepository.save(product);
+    public Product createProduct(Product product){
+        return productRepository.save(product);
     }
 
     public void deleteProduct(Long id){
@@ -51,8 +51,7 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-
-    public void updateProduct(Product product, Long id){
+    public Product updateProduct(Product product, Long id){
 
         Product productExist = productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product id: " + id + " does not exists"));
 
@@ -63,7 +62,7 @@ public class ProductService {
         productExist.setPrice(product.getPrice());
         productExist.setStocks(product.getStocks());
 
-        productRepository.save(productExist);
+        return productRepository.save(productExist);
     }
 
 
