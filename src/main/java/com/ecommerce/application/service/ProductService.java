@@ -21,19 +21,15 @@ public class ProductService {
 
     public List<Product> getProducts(){
         List<Product> products = new ArrayList<>();
-
         productRepository.findAll().forEach(products::add);
-
         return products;
     }
 
     public Optional<Product> getSingleProduct(Long id){
         boolean exists = productRepository.existsById(id);
-
         if(!exists){
             throw  new IllegalStateException("Product id: " + id + " does not exist.");
         }
-
         return productRepository.findById(id);
     }
 
@@ -43,16 +39,13 @@ public class ProductService {
 
     public void deleteProduct(Long id){
         boolean exists = productRepository.existsById(id);
-
         if(!exists){
             throw  new IllegalStateException("Product id: " + id + " does not exist.");
         }
-
         productRepository.deleteById(id);
     }
 
     public Product updateProduct(Product product, Long id){
-
         Product productExist = productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product id: " + id + " does not exists"));
 
         productExist.setCategory_id(product.getCategory_id());

@@ -1,6 +1,9 @@
 package com.ecommerce.application.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.*;
 
 @Entity()
 @Table(name = "categories")
@@ -13,12 +16,14 @@ public class Category {
     private String name;
     private String description;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.ALL)
+    private List<Product> productList;
+
+    public Category() { }
+
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public Category() {
     }
 
     public Long getId() {
