@@ -26,6 +26,7 @@ public class Product {
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
     private Category category;
 
+
     public Product() { }
 
     public Product(Long category_id, String sku, String name, String description, Long price, Integer stocks) {
