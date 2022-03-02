@@ -16,14 +16,19 @@ public class Category {
     private String name;
     private String description;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.ALL)
-    private List<Product> productList;
+    private Set<Product> productList = new HashSet<>();
 
     public Category() { }
 
     public Category(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public Set<Product> getProductList() {
+        return productList;
     }
 
     public Long getId() {
