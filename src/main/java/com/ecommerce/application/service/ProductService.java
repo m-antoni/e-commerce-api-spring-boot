@@ -1,6 +1,8 @@
 package com.ecommerce.application.service;
 
+import com.ecommerce.application.model.Category;
 import com.ecommerce.application.model.Product;
+import com.ecommerce.application.repository.CategoryRepository;
 import com.ecommerce.application.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,12 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<Product> getProducts(){
@@ -34,6 +38,8 @@ public class ProductService {
     }
 
     public Product createProduct(Product product){
+        Category categoryExists = categoryRepository.findById(product.getCategory_id()).orElseThrow(() -> new IllegalStateException("Category id: " + product.getCategory_id() + " does not exist"));
+        product.setCategory(categoryExists);
         return productRepository.save(product);
     }
 
