@@ -16,8 +16,8 @@ public class Category {
     private String name;
     private String description;
 
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.ALL)
+//    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = Product.class)
     private Set<Product> productList = new HashSet<>();
 
     public Category() { }
@@ -29,6 +29,10 @@ public class Category {
 
     public Set<Product> getProductList() {
         return productList;
+    }
+
+    public void setProductList(Set<Product> productList) {
+        this.productList = productList;
     }
 
 

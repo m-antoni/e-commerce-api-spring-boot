@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ProductService {
-
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-
+    
     @Autowired
     public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
@@ -40,7 +40,13 @@ public class ProductService {
     public Product createProduct(Product product){
         Category categoryExists = categoryRepository.findById(product.getCategory_id()).orElseThrow(() -> new IllegalStateException("Category id: " + product.getCategory_id() + " does not exist"));
         product.setCategory(categoryExists);
-        return productRepository.save(product);
+
+        Set<Product> productListInCategory = categoryExists.getProductList();
+        productListInCategory.add(product);
+
+        Product productSave = productRepository.save(product);
+
+        return productSave;
     }
 
     public void deleteProduct(Long id){
@@ -53,7 +59,6 @@ public class ProductService {
 
     public Product updateProduct(Product product, Long id){
         Product productExist = productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product id: " + id + " does not exists"));
-
         productExist.setCategory_id(product.getCategory_id());
         productExist.setSku(product.getSku());
         productExist.setName(product.getName());
@@ -63,6 +68,4 @@ public class ProductService {
 
         return productRepository.save(productExist);
     }
-
-
 }

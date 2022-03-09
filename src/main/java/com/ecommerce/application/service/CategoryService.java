@@ -1,22 +1,24 @@
 package com.ecommerce.application.service;
 
 import com.ecommerce.application.model.Category;
+import com.ecommerce.application.model.Product;
 import com.ecommerce.application.repository.CategoryRepository;
+import com.ecommerce.application.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    public final ProductRepository productRepository;
 
     @Autowired
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     public List<Category> getCategories(){
@@ -30,6 +32,7 @@ public class CategoryService {
         if(!exists){
             throw new IllegalStateException("Category id: " + id + " does not exists");
         }
+
         return categoryRepository.findById(id);
     }
 
@@ -47,7 +50,6 @@ public class CategoryService {
 
     public Category updateCategory(Category category, Long id){
         Category categoryExists = categoryRepository.findById(id).orElseThrow(() -> new IllegalStateException("Category id: " + id + " does not exist"));
-
         categoryExists.setName(category.getName());
         categoryExists.setDescription(category.getDescription());
 

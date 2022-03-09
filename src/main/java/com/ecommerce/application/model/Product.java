@@ -3,6 +3,7 @@ package com.ecommerce.application.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Collection;
 
 @Entity()
@@ -22,14 +23,14 @@ public class Product {
     private Integer stocks;
 
     // Relationships ManyToOne
+    @JsonIgnore
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
     private Category category;
 
-
     public Product() { }
 
-    public Product(Long category_id, String sku, String name, String description, Long price, Integer stocks) {
+    public Product(Long category_id, String sku, String name, String description, Long price, Integer stocks0) {
         this.category_id = category_id;
         this.sku = sku;
         this.name = name;
