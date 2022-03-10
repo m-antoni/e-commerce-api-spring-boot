@@ -1,10 +1,8 @@
 package com.ecommerce.application.controller;
 
-import com.ecommerce.application.model.Category;
-import com.ecommerce.application.model.OrderDetail;
-import com.ecommerce.application.model.Product;
+import com.ecommerce.application.model.Cart;
 import com.ecommerce.application.reponse.ResponseHandler;
-import com.ecommerce.application.service.OrderDetailService;
+import com.ecommerce.application.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,24 +10,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @RestController
-@RequestMapping(path = "/api/v1/order-details")
-public class OrderDetailController {
+@RequestMapping(path = "/api/v1/cart")
+public class CartController {
 
-    private final OrderDetailService orderDetailService;
+    private final CartService cartService;
 
     @Autowired
-    public OrderDetailController(OrderDetailService orderDetailService) {
-        this.orderDetailService = orderDetailService;
+    public CartController(CartService cartService) {
+        this.cartService = cartService;
     }
 
     @GetMapping
     public ResponseEntity<Object> getOrderDetails(){
         try
         {
-            List<OrderDetail> result = orderDetailService.getOrderDetails();
+            Object result = cartService.getCarts();
             return ResponseHandler.GenerateResponse("Success", HttpStatus.OK, result);
         }
         catch(Exception e)
@@ -43,9 +40,8 @@ public class OrderDetailController {
     {
         try
         {
-            Optional<OrderDetail> result = orderDetailService.getSingleOrderDetail(id);
+            Optional<Cart> result = cartService.getSingleCart(id);
             return ResponseHandler.GenerateResponse("Success", HttpStatus.OK, result);
-
         }
         catch (Exception e)
         {
@@ -54,10 +50,10 @@ public class OrderDetailController {
     }
 
     @PostMapping
-    public ResponseEntity<Object>  createOrderDetail(@RequestBody  OrderDetail orderDetail){
+    public ResponseEntity<Object>  createOrderDetail(@RequestBody Cart cart){
         try
         {
-            OrderDetail result = orderDetailService.createOrderDetail(orderDetail);
+            Object result = cartService.createCart(cart);
             return ResponseHandler.GenerateResponse("Success", HttpStatus.OK, result);
         }
         catch (Exception e)
@@ -67,10 +63,10 @@ public class OrderDetailController {
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<Object> updateOrderDetail(@RequestBody OrderDetail orderDetail, @PathVariable("id") Long id){
+    public ResponseEntity<Object> updateOrderDetail(@RequestBody Cart cart, @PathVariable("id") Long id){
         try
         {
-            OrderDetail result = orderDetailService.updateOrderDetail(orderDetail, id);
+            Object result = cartService.updateCart(cart, id);
             return ResponseHandler.GenerateResponse("Updated successfully", HttpStatus.OK, result);
         }
         catch(Exception e)
@@ -84,8 +80,8 @@ public class OrderDetailController {
     public ResponseEntity<Object> deleteOrderDetail(@PathVariable("id") Long id){
         try
         {
-            orderDetailService.deleteOrderDetail(id);
-            return ResponseHandler.GenerateResponse("Deleted successfully", HttpStatus.OK, null);
+            Object result = cartService.deleteCart(id);
+            return ResponseHandler.GenerateResponse("Deleted successfully", HttpStatus.OK, result);
         }
         catch(Exception e)
         {

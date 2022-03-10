@@ -3,24 +3,22 @@ package com.ecommerce.application.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "order_details")
-public class OrderDetail {
+@Table(name = "cart")
+public class Cart {
 
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long product_id;
-    private String sku;
     private Integer quantity;
     private Long price;
 
-    public OrderDetail() {
+    public Cart() {
     }
 
-    public OrderDetail(Long product_id, String sku, Long price, Integer quantity) {
+    public Cart(Long product_id, Long price, Integer quantity) {
         this.product_id = product_id;
-        this.sku = sku;
         this.price = price;
         this.quantity = quantity;
     }
@@ -39,14 +37,6 @@ public class OrderDetail {
 
     public void setProduct_id(Long product_id) {
         this.product_id = product_id;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
     }
 
     public Long getPrice() {
@@ -70,7 +60,6 @@ public class OrderDetail {
         return "OrderDetail{" +
                 "id=" + id +
                 ", product_id=" + product_id +
-                ", sku='" + sku + '\'' +
                 ", price=" + price +
                 ", quantity=" + quantity +
                 '}';
