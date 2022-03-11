@@ -40,8 +40,13 @@ public class CartService {
         Product product = productRepository.findById(cart.getProduct_id())
                 .orElseThrow(() -> new IllegalStateException("Product does not exists."));
 
-        cart.setPrice(product.getPrice() * cart.getQuantity());
+        // Custom Query: Check if item is already in the cart list
+        List<Cart> cartItem = cartRepository.findByProductId(cart.getProduct_id());
+        if(!cartItem.isEmpty()) {
+            throw new IllegalStateException("Product is already in your cart list.");
+        }
 
+        cart.setPrice(product.getPrice() * cart.getQuantity());
         return cartRepository.save(cart);
     }
 
