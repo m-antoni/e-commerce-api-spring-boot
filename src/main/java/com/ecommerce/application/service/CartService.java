@@ -36,36 +36,46 @@ public class CartService {
     }
 
     public Object createCart(Cart cart){
-        cartRepository.save(cart);
-        return cartHandler.GenerateResponse();
+        // Check Product
+        Product product = productRepository.findById(cart.getProduct_id())
+                .orElseThrow(() -> new IllegalStateException("Product does not exists."));
+
+        cart.setPrice(product.getPrice() * cart.getQuantity());
+
+        return cartRepository.save(cart);
     }
 
     public Object deleteCart(Long id){
-        boolean exists = cartRepository.existsById(id);
-        if(!exists){
-            throw  new IllegalStateException("Product id: " + id + " does not exist.");
+
+        // Trigger for delete All
+        if(id == 0){
+            cartRepository.deleteAll();
+            return cartHandler.GenerateResponse();
         }
 
+        boolean exists = cartRepository.existsById(id);
+        if(!exists){
+            throw  new IllegalStateException("Product does not exists.");
+        }
         // delete single product
         cartRepository.deleteById(id);
-
         return cartHandler.GenerateResponse();
     }
 
     public Object updateCart(Cart cart, Long id) {
         Cart cartToUpdate = cartRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Cart Item id: " + id + " does not exists"));
+                .orElseThrow(() -> new IllegalStateException("Cart Item does not exists"));
 
         // Get price
         Product product = productRepository.findById(cartToUpdate.getProduct_id())
-                .orElseThrow(() -> new IllegalStateException("Product id: " + id + " does not exists"));
+                .orElseThrow(() -> new IllegalStateException("Product does not exists"));
 
         // Update Cart Item
         cartToUpdate.setQuantity(cart.getQuantity());
         cartToUpdate.setPrice(product.getPrice() * cart.getQuantity());
-        cartRepository.save(cartToUpdate);
 
-        return cartHandler.GenerateResponse();
+        return cartRepository.save(cartToUpdate);
+
     }
 
 }

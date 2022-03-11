@@ -1,14 +1,10 @@
 package com.ecommerce.application.model;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Collection;
 
 @Entity()
 @Table(name = "products")
-public class Product {
+public class Product extends BaseEntity{
 
     @Id
     @Column(nullable = false)
@@ -16,7 +12,6 @@ public class Product {
     private Long id;
 
     private Long category_id;
-    private String sku;
     private String name;
     private String description;
     private Long price;
@@ -32,7 +27,6 @@ public class Product {
 
     public Product(Long category_id, String sku, String name, String description, Long price, Integer stocks0) {
         this.category_id = category_id;
-        this.sku = sku;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -61,14 +55,6 @@ public class Product {
 
     public void setCategory_id(Long category_id) {
         this.category_id = category_id;
-    }
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
     }
 
     public String getName() {
@@ -108,7 +94,6 @@ public class Product {
         return "Product{" +
                 "id=" + id +
                 ", category_id=" + category_id +
-                ", sku='" + sku + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +

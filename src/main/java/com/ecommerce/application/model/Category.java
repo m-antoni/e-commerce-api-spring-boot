@@ -7,7 +7,7 @@ import java.util.*;
 
 @Entity()
 @Table(name = "categories")
-public class Category {
+public class Category extends BaseEntity{
 
     @Id
     @Column(nullable = false)

@@ -26,6 +26,8 @@ public class CartHandler {
         // Get sum of cart's price
         Long sum = Long.valueOf(cartList.stream().mapToInt(x -> Math.toIntExact(x.getPrice())).sum());
 
+        System.out.println(cartList);
+
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("cart_list", cartList);
         map.put("total_items", cartList.size()); // get the total items

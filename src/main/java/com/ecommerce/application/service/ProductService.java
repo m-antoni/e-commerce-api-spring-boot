@@ -32,13 +32,13 @@ public class ProductService {
     public Optional<Product> getSingleProduct(Long id){
         boolean exists = productRepository.existsById(id);
         if(!exists){
-            throw  new IllegalStateException("Product id: " + id + " does not exist.");
+            throw  new IllegalStateException("Product does not exist.");
         }
         return productRepository.findById(id);
     }
 
     public Product createProduct(Product product){
-        Category categoryExists = categoryRepository.findById(product.getCategory_id()).orElseThrow(() -> new IllegalStateException("Category id: " + product.getCategory_id() + " does not exist"));
+        Category categoryExists = categoryRepository.findById(product.getCategory_id()).orElseThrow(() -> new IllegalStateException("Category does not exist"));
         product.setCategory(categoryExists);
 
         Set<Product> productListInCategory = categoryExists.getProductList();
@@ -52,20 +52,18 @@ public class ProductService {
     public void deleteProduct(Long id){
         boolean exists = productRepository.existsById(id);
         if(!exists){
-            throw  new IllegalStateException("Product id: " + id + " does not exist.");
+            throw  new IllegalStateException("Product does not exist.");
         }
         productRepository.deleteById(id);
     }
 
     public Product updateProduct(Product product, Long id){
-        Product productExist = productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product id: " + id + " does not exists"));
+        Product productExist = productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product does not exists"));
         productExist.setCategory_id(product.getCategory_id());
-        productExist.setSku(product.getSku());
         productExist.setName(product.getName());
         productExist.setDescription(product.getDescription());
         productExist.setPrice(product.getPrice());
         productExist.setStocks(product.getStocks());
-
         return productRepository.save(productExist);
     }
 }

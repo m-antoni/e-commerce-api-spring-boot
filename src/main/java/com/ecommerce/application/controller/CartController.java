@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -23,7 +22,7 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> getOrderDetails(){
+    public ResponseEntity<Object> getCarts(){
         try
         {
             Object result = cartService.getCarts();
@@ -36,7 +35,7 @@ public class CartController {
     }
 
     @GetMapping(path = "{id}")
-    public ResponseEntity<Object> getSingleOrderDetail(@PathVariable("id") Long id)
+    public ResponseEntity<Object> getSingleCart(@PathVariable("id") Long id)
     {
         try
         {
@@ -50,7 +49,7 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<Object>  createOrderDetail(@RequestBody Cart cart){
+    public ResponseEntity<Object> createCart(@RequestBody Cart cart){
         try
         {
             Object result = cartService.createCart(cart);
@@ -63,7 +62,7 @@ public class CartController {
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<Object> updateOrderDetail(@RequestBody Cart cart, @PathVariable("id") Long id){
+    public ResponseEntity<Object> updateItem(@RequestBody Cart cart, @PathVariable("id") Long id){
         try
         {
             Object result = cartService.updateCart(cart, id);
@@ -77,7 +76,7 @@ public class CartController {
     }
 
     @DeleteMapping(path = "{id}")
-    public ResponseEntity<Object> deleteOrderDetail(@PathVariable("id") Long id){
+    public ResponseEntity<Object> deleteItem(@PathVariable("id") Long id){
         try
         {
             Object result = cartService.deleteCart(id);
