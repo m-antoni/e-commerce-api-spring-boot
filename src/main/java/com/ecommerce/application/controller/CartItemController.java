@@ -1,8 +1,8 @@
 package com.ecommerce.application.controller;
 
-import com.ecommerce.application.model.Cart;
+import com.ecommerce.application.model.CartItem;
 import com.ecommerce.application.response.ResponseHandler;
-import com.ecommerce.application.service.CartService;
+import com.ecommerce.application.service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/api/v1/cart")
-public class CartController {
+@RequestMapping(path = "/api/v1/cart-items")
+public class CartItemController {
 
-    private final CartService cartService;
+    private final CartItemService cartService;
 
     @Autowired
-    public CartController(CartService cartService) {
+    public CartItemController(CartItemService cartService) {
         this.cartService = cartService;
     }
 
@@ -39,7 +39,7 @@ public class CartController {
     {
         try
         {
-            Optional<Cart> result = cartService.getSingleCart(id);
+            Optional<CartItem> result = cartService.getSingleCart(id);
             return ResponseHandler.GenerateResponse("Success", HttpStatus.OK, result);
         }
         catch (Exception e)
@@ -49,10 +49,10 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createCart(@RequestBody Cart cart){
+    public ResponseEntity<Object> createCart(@RequestBody CartItem cartItem){
         try
         {
-            Object result = cartService.createCart(cart);
+            Object result = cartService.createCart(cartItem);
             return ResponseHandler.GenerateResponse("Success", HttpStatus.OK, result);
         }
         catch (Exception e)
@@ -62,10 +62,10 @@ public class CartController {
     }
 
     @PutMapping(path = "{id}")
-    public ResponseEntity<Object> updateItem(@RequestBody Cart cart, @PathVariable("id") Long id){
+    public ResponseEntity<Object> updateItem(@RequestBody CartItem cartItem, @PathVariable("id") Long id){
         try
         {
-            Object result = cartService.updateCart(cart, id);
+            Object result = cartService.updateCart(cartItem, id);
             return ResponseHandler.GenerateResponse("Updated successfully", HttpStatus.OK, result);
         }
         catch(Exception e)

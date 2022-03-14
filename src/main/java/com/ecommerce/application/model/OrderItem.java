@@ -3,23 +3,25 @@ package com.ecommerce.application.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "cart")
-public class Cart extends BaseEntity {
+@Table(name = "order_items")
+public class OrderItem extends BaseEntity{
 
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long product_id;
+    private Long order_id;
     private Integer quantity;
-    private Long price;
+    private String status;
 
-    public Cart() {
+
+    public OrderItem() {
     }
 
-    public Cart(Long product_id, Long price, Integer quantity) {
+    public OrderItem(Long product_id, Long order_id, Integer quantity) {
         this.product_id = product_id;
-        this.price = price;
+        this.order_id = order_id;
         this.quantity = quantity;
     }
 
@@ -39,12 +41,12 @@ public class Cart extends BaseEntity {
         this.product_id = product_id;
     }
 
-    public Long getPrice() {
-        return price;
+    public Long getOrder_id() {
+        return order_id;
     }
 
-    public void setPrice(Long price) {
-        this.price = price;
+    public void setOrder_id(Long order_id) {
+        this.order_id = order_id;
     }
 
     public Integer getQuantity() {
@@ -55,12 +57,13 @@ public class Cart extends BaseEntity {
         this.quantity = quantity;
     }
 
+
     @Override
     public String toString() {
-        return "OrderDetail{" +
+        return "OrderItem{" +
                 "id=" + id +
                 ", product_id=" + product_id +
-                ", price=" + price +
+                ", order_id=" + order_id +
                 ", quantity=" + quantity +
                 '}';
     }

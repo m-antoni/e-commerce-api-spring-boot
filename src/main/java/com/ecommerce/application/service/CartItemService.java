@@ -1,8 +1,10 @@
 package com.ecommerce.application.service;
-import com.ecommerce.application.model.Cart;
+import com.ecommerce.application.model.CartItem;
+import com.ecommerce.application.model.OrderItem;
 import com.ecommerce.application.model.Product;
+import com.ecommerce.application.repository.OrderDetailRepository;
 import com.ecommerce.application.response.CartHandler;
-import com.ecommerce.application.repository.CartRepository;
+import com.ecommerce.application.repository.CartItemRepository;
 import com.ecommerce.application.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,24 +12,26 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class CartService {
+public class CartItemService {
 
-    private final CartRepository cartRepository;
+    private final CartItemRepository cartRepository;
     private final ProductRepository productRepository;
     private final CartHandler cartHandler;
+    private final OrderDetailRepository orderDetailRepository;
 
     @Autowired
-    public CartService(CartRepository cartRepository, ProductRepository productRepository, CartHandler cartHandler) {
+    public CartItemService(CartItemRepository cartRepository, ProductRepository productRepository, CartHandler cartHandler, OrderDetailRepository orderDetailRepository) {
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
         this.cartHandler = cartHandler;
+        this.orderDetailRepository = orderDetailRepository;
     }
 
     public Object getCarts(){
         return cartHandler.GenerateResponse();
     }
 
-    public Optional<Cart> getSingleCart(Long id){
+    public Optional<CartItem> getSingleCart(Long id){
         boolean exists = cartRepository.existsById(id);
         if(!exists){
             throw new IllegalStateException("Product id: " + id + " does not exists.");
@@ -35,19 +39,19 @@ public class CartService {
         return cartRepository.findById(id);
     }
 
-    public Object createCart(Cart cart){
+    public Object createCart(CartItem cartItem){
         // Check Product
-        Product product = productRepository.findById(cart.getProduct_id())
+        Product product = productRepository.findById(cartItem.getProduct_id())
                 .orElseThrow(() -> new IllegalStateException("Product does not exists."));
 
         // Custom Query: Check if item is already in the cart list
-        List<Cart> cartItem = cartRepository.findByProductId(cart.getProduct_id());
-        if(!cartItem.isEmpty()) {
+        List<CartItem> cartItemItem = cartRepository.findByProductId(cartItem.getProduct_id());
+        if(!cartItemItem.isEmpty()) {
             throw new IllegalStateException("Product is already in your cart list.");
         }
 
-        cart.setPrice(product.getPrice() * cart.getQuantity());
-        return cartRepository.save(cart);
+        cartItem.setPrice(product.getPrice() * cartItem.getQuantity());
+        return cartRepository.save(cartItem);
     }
 
     public Object deleteCart(Long id){
@@ -67,20 +71,20 @@ public class CartService {
         return cartHandler.GenerateResponse();
     }
 
-    public Object updateCart(Cart cart, Long id) {
-        Cart cartToUpdate = cartRepository.findById(id)
+    public Object updateCart(CartItem cartItem, Long id) {
+        CartItem cartItemToUpdate = cartRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Cart Item does not exists"));
 
         // Get price
-        Product product = productRepository.findById(cartToUpdate.getProduct_id())
+        Product product = productRepository.findById(cartItemToUpdate.getProduct_id())
                 .orElseThrow(() -> new IllegalStateException("Product does not exists"));
 
         // Update Cart Item
-        cartToUpdate.setQuantity(cart.getQuantity());
-        cartToUpdate.setPrice(product.getPrice() * cart.getQuantity());
+        cartItemToUpdate.setQuantity(cartItem.getQuantity());
+        cartItemToUpdate.setPrice(product.getPrice() * cartItem.getQuantity());
 
-        return cartRepository.save(cartToUpdate);
-
+        return cartRepository.save(cartItemToUpdate);
     }
+
 
 }
