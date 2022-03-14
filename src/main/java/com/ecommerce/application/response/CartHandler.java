@@ -1,4 +1,4 @@
-package com.ecommerce.application.reponse;
+package com.ecommerce.application.response;
 
 import com.ecommerce.application.model.Cart;
 import com.ecommerce.application.repository.CartRepository;

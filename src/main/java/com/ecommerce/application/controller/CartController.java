@@ -1,7 +1,7 @@
 package com.ecommerce.application.controller;
 
 import com.ecommerce.application.model.Cart;
-import com.ecommerce.application.reponse.ResponseHandler;
+import com.ecommerce.application.response.ResponseHandler;
 import com.ecommerce.application.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
