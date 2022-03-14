@@ -75,6 +75,10 @@ public class CartItemService {
         CartItem cartItemToUpdate = cartRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Cart Item does not exists"));
 
+        if(cartItem.getQuantity() == 0){
+            throw  new IllegalStateException("your quantity cannot be zero value.");
+        }
+
         // Get price
         Product product = productRepository.findById(cartItemToUpdate.getProduct_id())
                 .orElseThrow(() -> new IllegalStateException("Product does not exists"));
