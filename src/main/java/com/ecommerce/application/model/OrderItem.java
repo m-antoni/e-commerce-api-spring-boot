@@ -13,7 +13,9 @@ public class OrderItem extends BaseEntity{
     private Long product_id;
     private Long order_id;
     private Integer quantity;
-    private String status;
+
+
+
 
 
     public OrderItem() {

@@ -31,7 +31,6 @@ public class CartHandler {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("cart_list", cartItemList);
         map.put("total_items", cartItemList.size()); // get the total items
-        map.put("total_amount", sum);
 
         return map;
     }
