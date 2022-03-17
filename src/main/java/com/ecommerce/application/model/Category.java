@@ -1,7 +1,5 @@
 package com.ecommerce.application.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.*;
 
@@ -17,7 +15,7 @@ public class Category extends BaseEntity{
     private String description;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = Product.class)
-    private Set<Product> productList = new HashSet<>();
+    private Set<Product> product_list = new HashSet<>();
 
     public Category() { }
 
@@ -26,12 +24,12 @@ public class Category extends BaseEntity{
         this.description = description;
     }
 
-    public Set<Product> getProductList() {
-        return productList;
+    public Set<Product> getProduct_list() {
+        return product_list;
     }
 
-    public void setProductList(Set<Product> productList) {
-        this.productList = productList;
+    public void setProduct_list(Set<Product> product_list) {
+        this.product_list = product_list;
     }
 
 

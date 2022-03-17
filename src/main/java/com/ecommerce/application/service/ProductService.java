@@ -41,7 +41,7 @@ public class ProductService {
         Category categoryExists = categoryRepository.findById(product.getCategory_id()).orElseThrow(() -> new IllegalStateException("Category does not exist"));
         product.setCategory(categoryExists);
 
-        Set<Product> productListInCategory = categoryExists.getProductList();
+        Set<Product> productListInCategory = categoryExists.getProduct_list();
         productListInCategory.add(product);
 
         Product productSave = productRepository.save(product);

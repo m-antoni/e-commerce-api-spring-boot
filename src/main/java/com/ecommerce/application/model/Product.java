@@ -19,13 +19,13 @@ public class Product extends BaseEntity{
 
     // Relationships ManyToOne
     @JsonIgnore
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
     private Category category;
 
     public Product() { }
 
-    public Product(Long category_id, String sku, String name, String description, Long price, Integer stocks0) {
+    public Product(Long category_id, String name, String description, Long price, Integer stocks) {
         this.category_id = category_id;
         this.name = name;
         this.description = description;

@@ -1,13 +1,7 @@
 package com.ecommerce.application.service;
 
-import com.ecommerce.application.model.CartItem;
-import com.ecommerce.application.model.DeliveryAddress;
-import com.ecommerce.application.model.OrderDetail;
-import com.ecommerce.application.model.OrderItem;
-import com.ecommerce.application.repository.CartItemRepository;
-import com.ecommerce.application.repository.DeliveryAddressRepository;
-import com.ecommerce.application.repository.OrderDetailRepository;
-import com.ecommerce.application.repository.OrderItemRepository;
+import com.ecommerce.application.model.*;
+import com.ecommerce.application.repository.*;
 import com.ecommerce.application.response.OrderHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,14 +16,16 @@ public class OrderDetailService {
     private final CartItemRepository cartItemRepository;
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final OrderHandler orderHandler;
+    private final PaymentDetailRepository paymentDetailRepository;
 
     @Autowired
-    public OrderDetailService(OrderDetailRepository orderDetailRepository, OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository, DeliveryAddressRepository deliveryAddressRepository, OrderHandler orderHandler) {
+    public OrderDetailService(OrderDetailRepository orderDetailRepository, OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository, DeliveryAddressRepository deliveryAddressRepository, OrderHandler orderHandler, PaymentDetailRepository paymentDetailRepository) {
         this.orderDetailRepository = orderDetailRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartItemRepository = cartItemRepository;
         this.deliveryAddressRepository = deliveryAddressRepository;
         this.orderHandler = orderHandler;
+        this.paymentDetailRepository = paymentDetailRepository;
     }
 
     public Object createSingleOrderDetail(Long cartItemId, DeliveryAddress deliveryAddress){
@@ -56,7 +52,7 @@ public class OrderDetailService {
         // Remove the cart item
         cartItemRepository.deleteById(cartItemId);
 
-        return orderHandler.GenerateResponse(createOrderDetail.getOrder_no(), createOrderItem, orderDetail.getTotal_amount(), saveDeliveryAddress);
+        return orderHandler.GenerateResponse(createOrderDetail, createOrderItem, orderDetail.getTotal_amount(), saveDeliveryAddress);
     }
 
     public Object creatAllOrderDetail(DeliveryAddress deliveryAddress){
@@ -87,10 +83,10 @@ public class OrderDetailService {
         // Remove the cart all the cart items base on id
         cartItemRepository.deleteAll();
 
-        return orderHandler.GenerateResponse(createOrderDetail.getOrder_no(), listOfOrderItems, orderDetail.getTotal_amount(), saveDeliveryAddress);
+        return orderHandler.GenerateResponse(createOrderDetail, listOfOrderItems, orderDetail.getTotal_amount(), saveDeliveryAddress);
     }
 
-    // This will generate string and numbers
+    // This will generate random string and numbers
     private String generateRandomChars() {
         String salt_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         StringBuilder salt = new StringBuilder();
@@ -103,7 +99,7 @@ public class OrderDetailService {
         return saltStr;
     }
 
-    // This will generate order no
+    // This will generate random numbers
     private Long generateOrderNo(){
         long min = 100000000000L;
         long max = 999999999999L;

@@ -1,7 +1,6 @@
 package com.ecommerce.application.model;
 
 import javax.persistence.*;
-import java.util.Random;
 
 @Entity
 @Table(name = "order_details")
@@ -14,6 +13,7 @@ public class OrderDetail extends BaseEntity{
     private Long user_id;
     private Long order_no;
     private Long total_amount;
+    private String order_status = "PENDING";
 
     public OrderDetail() {
     }
@@ -54,6 +54,14 @@ public class OrderDetail extends BaseEntity{
 
     public void setOrder_no(Long order_no) {
         this.order_no = order_no;
+    }
+
+    public String getOrder_status() {
+        return order_status;
+    }
+
+    public void setOrder_status(String order_status) {
+        this.order_status = order_status;
     }
 
     @Override
