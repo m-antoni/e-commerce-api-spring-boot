@@ -32,7 +32,7 @@ public class OrderDetailService {
         this.orderHandler = orderHandler;
     }
 
-    public Object createSingleOrderDetail(Long cartItemId){
+    public Object createSingleOrderDetail(Long cartItemId, DeliveryAddress deliveryAddress){
 
         Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
 
@@ -49,10 +49,14 @@ public class OrderDetailService {
         OrderItem createOrderItem = new OrderItem(cartItem.get().getProduct_id(), orderDetail.getId(), cartItem.get().getQuantity());
         orderItemRepository.save(createOrderItem);
 
+        // save delivery address
+        deliveryAddress.setOrder_id(createOrderDetail.getId());
+        DeliveryAddress saveDeliveryAddress = deliveryAddressRepository.save(deliveryAddress);
+
         // Remove the cart item
         cartItemRepository.deleteById(cartItemId);
 
-        return orderHandler.GenerateResponse(createOrderDetail.getOrder_no(), createOrderItem, orderDetail.getTotal_amount(), createDeliveryAddress);
+        return orderHandler.GenerateResponse(createOrderDetail.getOrder_no(), createOrderItem, orderDetail.getTotal_amount(), saveDeliveryAddress);
     }
 
     public Object creatAllOrderDetail(DeliveryAddress deliveryAddress){
@@ -69,8 +73,7 @@ public class OrderDetailService {
         OrderDetail orderDetail = orderDetailRepository.save(createOrderDetail);
 
         // save delivery address
-//        DeliveryAddress createDeliveryAddress = new DeliveryAddress(orderDetail.getOrder_no(), deliveryAddress.getFull_name(), deliveryAddress.getAddress(), deliveryAddress.getContact_no());
-        deliveryAddress.setOrder_id(orderDetail.getOrder_no());
+        deliveryAddress.setOrder_id(orderDetail.getId()); // get the order_id before saving
         DeliveryAddress saveDeliveryAddress = deliveryAddressRepository.save(deliveryAddress);
 
         // save order items

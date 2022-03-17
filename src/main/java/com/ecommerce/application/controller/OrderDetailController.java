@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(path = "/api/v1/orders")
 public class OrderDetailController {
@@ -32,11 +34,11 @@ public class OrderDetailController {
         }
     }
 
-    @GetMapping(path = "{cartId}")
-    public ResponseEntity<Object> createSingleOrderDetail(@PathVariable Long cartId){
+    @PutMapping(path = "{cartItemId}")
+    public ResponseEntity<Object> createSingleOrderDetail(@RequestBody DeliveryAddress deliveryAddress, @PathVariable("cartItemId") Long cartItemId){
         try
         {
-            Object result = orderDetailService.createSingleOrderDetail(cartId);
+            Object result = orderDetailService.createSingleOrderDetail(cartItemId, deliveryAddress);
             return ResponseHandler.GenerateResponse("Success", HttpStatus.CREATED, result);
         }
         catch (Exception e)

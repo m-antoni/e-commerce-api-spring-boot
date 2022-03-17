@@ -21,24 +21,14 @@ public class OrderHandler {
     }
 
     public Object GenerateResponse(Long order_no, Object orderItems, Long totalAmount, DeliveryAddress deliveryAddress) {
-
         Map<String, Object> map = new HashMap<>();
         map.put("order_no", order_no);
+        map.put("receiver_name", deliveryAddress.getFull_name());
+        map.put("receiver_contact_no", deliveryAddress.getContact_no());
+        map.put("receiver_address", deliveryAddress.getAddress());
         map.put("order_items", orderItems);// get the total items
         map.put("total_amount", totalAmount);
-        map.put("delivery_info", deliveryAddress);
 
         return map;
-    }
-
-
-    private Optional<DeliveryAddress> getDeliveryById(Long id){
-        boolean exists = deliveryAddressRepository.existsById(id);
-
-        if(!exists){
-            throw new IllegalStateException("Delivery Address does not exists");
-        }
-
-        return deliveryAddressRepository.findById(id);
     }
 }
