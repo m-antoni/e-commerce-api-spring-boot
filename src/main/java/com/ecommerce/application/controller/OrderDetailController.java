@@ -21,19 +21,6 @@ public class OrderDetailController {
         this.orderDetailService = orderDetailService;
     }
 
-//    @PostMapping(path = "/all")
-//    public ResponseEntity<Object> createAllOrderDetail(@RequestBody DeliveryAddress deliveryAddress){
-//        try
-//        {
-//            Object result = orderDetailService.creatAllOrderDetail(deliveryAddress);
-//            return ResponseHandler.GenerateResponse("Success", HttpStatus.CREATED, result);
-//        }
-//        catch (Exception e)
-//        {
-//            return ResponseHandler.GenerateResponse(e.getMessage(), HttpStatus.BAD_REQUEST, null);
-//        }
-//    }
-
     @PutMapping(path = "{cartItemId}")
     public ResponseEntity<Object> createSingleOrderDetail(@RequestBody Map<String, String> REQUEST_PAYLOAD, @PathVariable("cartItemId") Long cartItemId){
         try
@@ -46,7 +33,6 @@ public class OrderDetailController {
             return ResponseHandler.GenerateResponse(e.getMessage(), HttpStatus.BAD_REQUEST, null);
         }
     }
-
 
     @PostMapping(path = "/all")
     public ResponseEntity<Object> createAllOrderDetail(@RequestBody Map<String, String> REQUEST_PAYLOAD){

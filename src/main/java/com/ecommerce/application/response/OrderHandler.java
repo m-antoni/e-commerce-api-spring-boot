@@ -30,7 +30,6 @@ public class OrderHandler {
         // Save Payment Detail
         PaymentDetail paymentDetail = this.createPaymentDetail(orderDetail.getId(), totalAmount, REQUEST_PAYLOAD);
 
-
         // GENERATING THE RESPONSE
         Map<String, Object> map = new HashMap<>();
         map.put("delivery_to", deliveryAddress.getFull_name());
@@ -45,7 +44,6 @@ public class OrderHandler {
 
         return map;
     }
-
 
     public DeliveryAddress createDeliveryAddress(Long orderDetailId, Map<String, String>  REQUEST_PAYLOAD){
         DeliveryAddress deliveryAddress = new DeliveryAddress();
@@ -69,8 +67,7 @@ public class OrderHandler {
         String PAYMENT_STATUS = REQUEST_PAYLOAD.get("payment_type").equals("COD") ? "UNPAID" : "PAID";
         paymentDetail.setPayment_status(PAYMENT_STATUS);
 
-        /*
-         * "Modify the total_amount from order details"
+        /* "Modify the total_amount from order details"
          *  - Add the delivery fee to total amount from orders
          *  - Subtract discount
         */
@@ -80,7 +77,6 @@ public class OrderHandler {
 
         return paymentDetailRepository.save(paymentDetail);
     }
-
 
     public Long generateOrderNo(){
         long min = 100000000000L;
