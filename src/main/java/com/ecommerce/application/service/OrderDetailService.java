@@ -19,7 +19,14 @@ public class OrderDetailService {
     private final PaymentDetailRepository paymentDetailRepository;
 
     @Autowired
-    public OrderDetailService(OrderDetailRepository orderDetailRepository, OrderItemRepository orderItemRepository, CartItemRepository cartItemRepository, DeliveryAddressRepository deliveryAddressRepository, OrderHandler orderHandler, PaymentDetailRepository paymentDetailRepository) {
+    public OrderDetailService(
+            OrderDetailRepository orderDetailRepository,
+            OrderItemRepository orderItemRepository,
+            CartItemRepository cartItemRepository,
+            DeliveryAddressRepository deliveryAddressRepository,
+            OrderHandler orderHandler,
+            PaymentDetailRepository paymentDetailRepository) {
+
         this.orderDetailRepository = orderDetailRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartItemRepository = cartItemRepository;
@@ -28,7 +35,7 @@ public class OrderDetailService {
         this.paymentDetailRepository = paymentDetailRepository;
     }
 
-    public Object createSingleOrderDetail(Long cartItemId, DeliveryAddress deliveryAddress){
+    public Object createSingleOrderDetail(Long cartItemId, Map<String, String> REQUEST_PAYLOAD){
 
         Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
 
@@ -36,76 +43,48 @@ public class OrderDetailService {
             throw new IllegalStateException("Product does not exists in your cart");
         }
 
-        // save the order details
-        OrderDetail createOrderDetail = new OrderDetail(1L, cartItem.get().getPrice(), this.generateOrderNo());
+        // Save the OrderDetail
+        OrderDetail createOrderDetail = new OrderDetail(1L, cartItem.get().getPrice(), orderHandler.generateOrderNo());
         OrderDetail orderDetail = orderDetailRepository.save(createOrderDetail);
-        DeliveryAddress createDeliveryAddress = new DeliveryAddress();
 
-        // save the order items
+        // Save OrderItem
         OrderItem createOrderItem = new OrderItem(cartItem.get().getProduct_id(), orderDetail.getId(), cartItem.get().getQuantity());
         orderItemRepository.save(createOrderItem);
 
-        // save delivery address
-        deliveryAddress.setOrder_id(createOrderDetail.getId());
-        DeliveryAddress saveDeliveryAddress = deliveryAddressRepository.save(deliveryAddress);
-
-        // Remove the cart item
+        // Remove the checkout item from cart
         cartItemRepository.deleteById(cartItemId);
 
-        return orderHandler.GenerateResponse(createOrderDetail, createOrderItem, orderDetail.getTotal_amount(), saveDeliveryAddress);
+        //return orderHandler.GenerateResponse(createOrderDetail, createOrderItem, orderDetail.getTotal_amount(), saveDeliveryAddress);
+        return orderHandler.GenerateResponse(createOrderDetail, createOrderItem, orderDetail.getTotal_amount(), REQUEST_PAYLOAD);
     }
 
-    public Object creatAllOrderDetail(DeliveryAddress deliveryAddress){
+    public Object creatAllOrderDetail(Map<String, String> REQUEST_PAYLOAD){
         List<CartItem> cartItems = cartItemRepository.findAll();
 
         if(cartItems.size() == 0){
             throw new IllegalStateException("You have 0 products in your cart, please add at least one product");
         }
 
-        // save the order details
+        // Save the OrderDetail
         Long total_amount = Long.valueOf(cartItems.stream().mapToInt(x -> Math.toIntExact(x.getPrice())).sum());
 
-        OrderDetail createOrderDetail = new OrderDetail(1L, total_amount, this.generateOrderNo());
+        OrderDetail createOrderDetail = new OrderDetail(1L, total_amount, orderHandler.generateOrderNo());
         OrderDetail orderDetail = orderDetailRepository.save(createOrderDetail);
 
-        // save delivery address
-        deliveryAddress.setOrder_id(orderDetail.getId()); // get the order_id before saving
-        DeliveryAddress saveDeliveryAddress = deliveryAddressRepository.save(deliveryAddress);
-
-        // save order items
+        // Save OrderItem
         List<OrderItem> listOfOrderItems = new ArrayList<>();
-        for (CartItem cartItem: cartItems){
+        for (CartItem cartItem: cartItems)
+        {
             OrderItem createOrderItem = new OrderItem(cartItem.getProduct_id(), orderDetail.getId(), cartItem.getQuantity());
             listOfOrderItems.add(createOrderItem);
         }
+
         orderItemRepository.saveAll(listOfOrderItems);
 
-        // Remove the cart all the cart items base on id
+        // Remove the checkout item(s) from cart
         cartItemRepository.deleteAll();
 
-        return orderHandler.GenerateResponse(createOrderDetail, listOfOrderItems, orderDetail.getTotal_amount(), saveDeliveryAddress);
+        return orderHandler.GenerateResponse(createOrderDetail, listOfOrderItems, orderDetail.getTotal_amount(), REQUEST_PAYLOAD);
     }
 
-    // This will generate random string and numbers
-    private String generateRandomChars() {
-        String salt_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder salt = new StringBuilder();
-        Random rnd = new Random();
-        while (salt.length() < 15) { // length of the random string.
-            int index = (int) (rnd.nextFloat() * salt_chars.length());
-            salt.append(salt_chars.charAt(index));
-        }
-        String saltStr = salt.toString().toUpperCase();
-        return saltStr;
-    }
-
-    // This will generate random numbers
-    private Long generateOrderNo(){
-        long min = 100000000000L;
-        long max = 999999999999L;
-        Random random = new Random();
-        long randomLong = (long) (random.nextFloat() * (max - min) + min);
-
-        return randomLong;
-    }
 }

@@ -19,8 +19,8 @@ public class PaymentDetail extends BaseEntity {
     @Column(columnDefinition = "integer default 150")
     private Long delivery_fee;
 
-    private String payment_type; // COD , BANK ACCOUNT INVALID
-    private String payment_status; // SUCCESS, CANCELLED,
+    private String payment_type; // COD, ONLINE BANKING
+    private String payment_status; // UNPAID, PAID
     private Long total_amount;
 
     public PaymentDetail() {
