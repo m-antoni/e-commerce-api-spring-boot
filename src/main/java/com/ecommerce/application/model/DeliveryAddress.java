@@ -1,5 +1,7 @@
 package com.ecommerce.application.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -15,6 +17,12 @@ public class DeliveryAddress extends BaseEntity{
     private String address;
     private Long contact_no;
 
+    // One to One
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
+    private OrderDetail orderDetail;
+
     public DeliveryAddress() {
     }
 
@@ -23,6 +31,14 @@ public class DeliveryAddress extends BaseEntity{
         this.full_name = full_name;
         this.address = address;
         this.contact_no = contact_no;
+    }
+
+    public OrderDetail getOrderDetail() {
+        return orderDetail;
+    }
+
+    public void setOrderDetail(OrderDetail orderDetail) {
+        this.orderDetail = orderDetail;
     }
 
     public Long getId() {

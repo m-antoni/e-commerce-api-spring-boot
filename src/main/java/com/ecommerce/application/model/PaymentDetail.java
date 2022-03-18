@@ -1,5 +1,7 @@
 package com.ecommerce.application.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -23,6 +25,13 @@ public class PaymentDetail extends BaseEntity {
     private String payment_status; // UNPAID, PAID
     private Long total_amount;
 
+
+    // One to One
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
+    private PaymentDetail paymentDetail;
+
     public PaymentDetail() {
     }
 
@@ -34,6 +43,14 @@ public class PaymentDetail extends BaseEntity {
         this.payment_type = payment_type;
         this.payment_status = payment_status;
         this.total_amount = total_amount;
+    }
+
+    public PaymentDetail getPaymentDetail() {
+        return paymentDetail;
+    }
+
+    public void setPaymentDetail(PaymentDetail paymentDetail) {
+        this.paymentDetail = paymentDetail;
     }
 
     public Long getId() {

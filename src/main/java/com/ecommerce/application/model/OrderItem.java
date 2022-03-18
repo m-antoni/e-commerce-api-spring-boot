@@ -1,5 +1,7 @@
 package com.ecommerce.application.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -14,9 +16,10 @@ public class OrderItem extends BaseEntity{
     private Long order_id;
     private Integer quantity;
 
-
-
-
+    @JsonIgnore
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
+    private OrderDetail orderDetail;
 
     public OrderItem() {
     }

@@ -87,4 +87,17 @@ public class OrderDetailService {
         return orderHandler.GenerateResponse(createOrderDetail, listOfOrderItems, orderDetail.getTotal_amount(), REQUEST_PAYLOAD);
     }
 
+
+    public List<OrderDetail> getOrderDetails(){
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        orderDetailRepository.findAll().forEach(orderDetails::add);
+        return orderDetails;
+    }
+
+
+
+
+
+
+
 }

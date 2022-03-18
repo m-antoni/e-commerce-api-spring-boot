@@ -1,6 +1,8 @@
 package com.ecommerce.application.model;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "order_details")
@@ -15,6 +17,18 @@ public class OrderDetail extends BaseEntity{
     private Long total_amount;
     private String order_status = "PENDING";
 
+    // One to Many
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "orderDetail", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = OrderItem.class)
+    private Set<OrderItem> order_items = new HashSet<>();
+
+    // One to one
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "orderDetail", cascade = CascadeType.ALL)
+    private DeliveryAddress delivery_address;
+
+    // One to one
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "paymentDetail", cascade = CascadeType.ALL)
+    private PaymentDetail paymentDetail;
+
     public OrderDetail() {
     }
 
@@ -22,6 +36,30 @@ public class OrderDetail extends BaseEntity{
         this.user_id = user_id;
         this.total_amount = total_amount;
         this.order_no = order_no;
+    }
+
+    public PaymentDetail getPaymentDetail() {
+        return paymentDetail;
+    }
+
+    public void setPaymentDetail(PaymentDetail paymentDetail) {
+        this.paymentDetail = paymentDetail;
+    }
+
+    public Set<OrderItem> getOrder_items() {
+        return order_items;
+    }
+
+    public void setOrder_items(Set<OrderItem> order_items) {
+        this.order_items = order_items;
+    }
+
+    public DeliveryAddress getDelivery_address() {
+        return delivery_address;
+    }
+
+    public void setDelivery_address(DeliveryAddress delivery_address) {
+        this.delivery_address = delivery_address;
     }
 
     public Long getId() {
