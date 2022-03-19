@@ -6,7 +6,6 @@ import com.ecommerce.application.response.OrderHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 @Service
@@ -18,6 +17,7 @@ public class OrderDetailService {
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final OrderHandler orderHandler;
     private final PaymentDetailRepository paymentDetailRepository;
+    private final ProductRepository productRepository;
 
     @Autowired
     public OrderDetailService(
@@ -26,7 +26,8 @@ public class OrderDetailService {
             CartItemRepository cartItemRepository,
             DeliveryAddressRepository deliveryAddressRepository,
             OrderHandler orderHandler,
-            PaymentDetailRepository paymentDetailRepository) {
+            PaymentDetailRepository paymentDetailRepository,
+            ProductRepository productRepository) {
 
         this.orderDetailRepository = orderDetailRepository;
         this.orderItemRepository = orderItemRepository;
@@ -34,6 +35,7 @@ public class OrderDetailService {
         this.deliveryAddressRepository = deliveryAddressRepository;
         this.orderHandler = orderHandler;
         this.paymentDetailRepository = paymentDetailRepository;
+        this.productRepository = productRepository;
     }
 
     public List<OrderDetail> getOrderDetails(){
@@ -68,6 +70,12 @@ public class OrderDetailService {
         OrderItem createOrderItem = new OrderItem(cartItem.get().getProduct_id(), orderDetail.getId(), cartItem.get().getQuantity());
         orderItemRepository.save(createOrderItem);
 
+        // Update Product Stocks base on the quantity
+        Integer quantity = cartItem.get().getQuantity();
+        Product product = productRepository.findById(cartItem.get().getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
+        product.setStocks(product.getStocks() - quantity);
+        productRepository.save(product);
+
         // Remove the checkout item from cart
         cartItemRepository.deleteById(cart_item_id);
 
@@ -97,6 +105,15 @@ public class OrderDetailService {
 
         orderItemRepository.saveAll(listOfOrderItems);
 
+        // Update the Product Stocks base on cart quantity
+        for(CartItem cartItem: cartItems)
+        {
+            Integer quantity = cartItem.getQuantity();
+            Product product = productRepository.findById(cartItem.getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
+            product.setStocks(product.getStocks() - quantity);
+            productRepository.save(product);
+        }
+
         // Remove the checkout item(s) from cart
         cartItemRepository.deleteAll();
 
@@ -121,6 +138,15 @@ public class OrderDetailService {
         else
         {
             orderDetail.getPaymentDetail().setPayment_status("CANCELLED");
+
+            // This means the item is unsuccessful so we need to return the quantity we have
+            for(OrderItem orderItem: orderDetail.getOrder_items())
+            {
+                Integer quantity = orderItem.getQuantity();
+                Product productStock = productRepository.findById(orderItem.getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
+                productStock.setStocks(productStock.getStocks() + quantity);
+                productRepository.save(productStock);
+            }
         }
 
         return orderDetailRepository.save(orderDetail);

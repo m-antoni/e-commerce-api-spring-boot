@@ -1,6 +1,5 @@
 package com.ecommerce.application.service;
 import com.ecommerce.application.model.CartItem;
-import com.ecommerce.application.model.OrderItem;
 import com.ecommerce.application.model.Product;
 import com.ecommerce.application.repository.OrderDetailRepository;
 import com.ecommerce.application.response.CartHandler;
@@ -14,14 +13,14 @@ import java.util.*;
 @Service
 public class CartItemService {
 
-    private final CartItemRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
     private final CartHandler cartHandler;
     private final OrderDetailRepository orderDetailRepository;
 
     @Autowired
     public CartItemService(CartItemRepository cartRepository, ProductRepository productRepository, CartHandler cartHandler, OrderDetailRepository orderDetailRepository) {
-        this.cartRepository = cartRepository;
+        this.cartItemRepository = cartRepository;
         this.productRepository = productRepository;
         this.cartHandler = cartHandler;
         this.orderDetailRepository = orderDetailRepository;
@@ -32,11 +31,11 @@ public class CartItemService {
     }
 
     public Optional<CartItem> getSingleCart(Long id){
-        boolean exists = cartRepository.existsById(id);
+        boolean exists = cartItemRepository.existsById(id);
         if(!exists){
             throw new IllegalStateException("Product id: " + id + " does not exists.");
         }
-        return cartRepository.findById(id);
+        return cartItemRepository.findById(id);
     }
 
     public Object createCart(CartItem cartItem){
@@ -45,39 +44,56 @@ public class CartItemService {
                 .orElseThrow(() -> new IllegalStateException("Product does not exists."));
 
         // Custom Query: Check if item is already in the cart list
-        List<CartItem> cartItemItem = cartRepository.findByProductId(cartItem.getProduct_id());
-        if(!cartItemItem.isEmpty()) {
+        List<CartItem> cartItemItem = cartItemRepository.findByProductId(cartItem.getProduct_id());
+        if(!cartItemItem.isEmpty())
             throw new IllegalStateException("Product is already in your cart list.");
-        }
+
+        // Check if the quantity is zero or less than the cart quantity
+        Product productStocks = productRepository.findById(cartItem.getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
+        if(productStocks.getStocks() == 0)
+            throw new IllegalStateException("Sorry this product is out of stock.");
+
+        // Check if Cart quantity given is greater than the current product stocks
+        if(cartItem.getQuantity() > productStocks.getStocks())
+            throw new IllegalStateException("Product stock(s) is only " + productStocks.getStocks() + ", Please update your quantity");
 
         cartItem.setPrice(product.getPrice() * cartItem.getQuantity());
-        return cartRepository.save(cartItem);
+        return cartItemRepository.save(cartItem);
     }
 
     public Object deleteCart(Long id){
 
         // Trigger for delete All
         if(id == 0){
-            cartRepository.deleteAll();
+            cartItemRepository.deleteAll();
             return cartHandler.GenerateResponse();
         }
 
-        boolean exists = cartRepository.existsById(id);
+        boolean exists = cartItemRepository.existsById(id);
         if(!exists){
             throw  new IllegalStateException("Product does not exists.");
         }
         // delete single product
-        cartRepository.deleteById(id);
+        cartItemRepository.deleteById(id);
         return cartHandler.GenerateResponse();
     }
 
     public Object updateCart(CartItem cartItem, Long id) {
-        CartItem cartItemToUpdate = cartRepository.findById(id)
+        CartItem cartItemToUpdate = cartItemRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Cart Item does not exists"));
 
-        if(cartItem.getQuantity() == 0){
+        // Check the quantity field
+        if(cartItem.getQuantity() == 0)
             throw  new IllegalStateException("your quantity cannot be zero value.");
-        }
+
+        // Check if the quantity is zero or less than the cart quantity
+        Product productStocks = productRepository.findById(cartItem.getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
+        if(productStocks.getStocks() == 0)
+            throw new IllegalStateException("Sorry this product is out of stock.");
+
+        // Check if Cart quantity given is greater than the current product stocks
+        if(cartItem.getQuantity() > productStocks.getStocks())
+            throw new IllegalStateException("Product stock(s) is only " + productStocks.getStocks() + ", Please update your quantity");
 
         // Get price
         Product product = productRepository.findById(cartItemToUpdate.getProduct_id())
@@ -87,7 +103,7 @@ public class CartItemService {
         cartItemToUpdate.setQuantity(cartItem.getQuantity());
         cartItemToUpdate.setPrice(product.getPrice() * cartItem.getQuantity());
 
-        return cartRepository.save(cartItemToUpdate);
+        return cartItemRepository.save(cartItemToUpdate);
     }
 
 
