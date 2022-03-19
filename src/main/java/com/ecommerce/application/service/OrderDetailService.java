@@ -6,6 +6,7 @@ import com.ecommerce.application.response.OrderHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 @Service
@@ -35,9 +36,25 @@ public class OrderDetailService {
         this.paymentDetailRepository = paymentDetailRepository;
     }
 
-    public Object createSingleOrderDetail(Long cartItemId, Map<String, String> REQUEST_PAYLOAD){
+    public List<OrderDetail> getOrderDetails(){
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        orderDetailRepository.findAll().forEach(orderDetails::add);
+        return orderDetails;
+    }
 
-        Optional<CartItem> cartItem = cartItemRepository.findById(cartItemId);
+    public Optional<OrderDetail> getSingleOrderDetail(Long id){
+        boolean exists = orderDetailRepository.existsById(id);
+        if(!exists){
+            throw new IllegalStateException("Order does not exists.");
+        }
+        return orderDetailRepository.findById(id);
+    }
+
+    public Object createSingleOrderDetail(Map<String, String> REQUEST_PAYLOAD){
+
+        Long cart_item_id = Long.valueOf(REQUEST_PAYLOAD.get("cart_item_id"));
+
+        Optional<CartItem> cartItem = cartItemRepository.findById(cart_item_id);
 
         if(!cartItem.isPresent()){
             throw new IllegalStateException("Product does not exists in your cart");
@@ -52,9 +69,8 @@ public class OrderDetailService {
         orderItemRepository.save(createOrderItem);
 
         // Remove the checkout item from cart
-        cartItemRepository.deleteById(cartItemId);
+        cartItemRepository.deleteById(cart_item_id);
 
-        //return orderHandler.GenerateResponse(createOrderDetail, createOrderItem, orderDetail.getTotal_amount(), saveDeliveryAddress);
         return orderHandler.GenerateResponse(createOrderDetail, createOrderItem, orderDetail.getTotal_amount(), REQUEST_PAYLOAD);
     }
 
@@ -87,17 +103,41 @@ public class OrderDetailService {
         return orderHandler.GenerateResponse(createOrderDetail, listOfOrderItems, orderDetail.getTotal_amount(), REQUEST_PAYLOAD);
     }
 
+    // Update Order Status
+    public Object updateOrderStatus(Long orderDetailId, Map<String, String> REQUEST_PAYLOAD){
 
-    public List<OrderDetail> getOrderDetails(){
-        List<OrderDetail> orderDetails = new ArrayList<>();
-        orderDetailRepository.findAll().forEach(orderDetails::add);
-        return orderDetails;
+        String order_status = REQUEST_PAYLOAD.get("order_status");
+
+        OrderDetail orderDetail = orderDetailRepository.findById(orderDetailId)
+                .orElseThrow(() -> new IllegalStateException("Order does not exists"));
+
+        orderDetail.setOrder_status(order_status);
+
+        /* Update the Payment Details: Check the order_status if "DELIVERED" or "RETURNED" */
+        if(order_status == "DELIVERED")
+        {
+            orderDetail.getPaymentDetail().setPayment_status("PAID");
+        }
+        else
+        {
+            orderDetail.getPaymentDetail().setPayment_status("CANCELLED");
+        }
+
+        return orderDetailRepository.save(orderDetail);
     }
 
+    // Delete Single Order
+    public void deleteSingleOrderDetail(Long id){
+        boolean exists = orderDetailRepository.existsById(id);
+        if(!exists){
+            throw  new IllegalStateException("Order does not exist.");
+        }
+        orderDetailRepository.deleteById(id);
+    }
 
-
-
-
-
+    // Delete All Order
+    public void deleteAllOrderDetails(){
+        orderDetailRepository.deleteAll();
+    }
 
 }
