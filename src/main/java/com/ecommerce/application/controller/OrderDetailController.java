@@ -1,15 +1,12 @@
 package com.ecommerce.application.controller;
 
-import com.ecommerce.application.model.DeliveryAddress;
-import com.ecommerce.application.response.ResponseHandler;
+import com.ecommerce.application.handler.ResponseHandler;
 import com.ecommerce.application.service.OrderDetailService;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -67,7 +64,7 @@ public class OrderDetailController {
     public ResponseEntity<Object> createAllOrderDetail(@RequestBody Map<String, String> REQUEST_PAYLOAD){
         try
         {
-            Object result = orderDetailService.creatAllOrderDetail(REQUEST_PAYLOAD);
+            Object result = orderDetailService.createAllOrderDetail(REQUEST_PAYLOAD);
             return ResponseHandler.GenerateResponse("Success", HttpStatus.CREATED, result);
         }
         catch (Exception e)
