@@ -44,7 +44,7 @@ public class OrderDetailService {
 
     public List<OrderDetail> getOrderDetails(){
         List<OrderDetail> orderDetails = new ArrayList<>();
-        orderDetailRepository.findAll().forEach(orderDetails::add);
+        orderDetailRepository.findAllByOrderByIdDesc().forEach(orderDetails::add);
         return orderDetails;
     }
 
