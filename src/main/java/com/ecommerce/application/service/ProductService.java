@@ -30,10 +30,7 @@ public class ProductService {
     }
 
     public Optional<Product> getSingleProduct(Long id){
-        boolean exists = productRepository.existsById(id);
-        if(!exists){
-            throw  new IllegalStateException("Product does not exist.");
-        }
+        productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product does not exist."));
         return productRepository.findById(id);
     }
 
@@ -50,10 +47,7 @@ public class ProductService {
     }
 
     public void deleteProduct(Long id){
-        boolean exists = productRepository.existsById(id);
-        if(!exists){
-            throw  new IllegalStateException("Product does not exist.");
-        }
+        productRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product does not exist."));
         productRepository.deleteById(id);
     }
 

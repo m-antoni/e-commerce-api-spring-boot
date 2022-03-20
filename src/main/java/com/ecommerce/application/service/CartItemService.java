@@ -1,4 +1,5 @@
 package com.ecommerce.application.service;
+import com.ecommerce.application.handler.StockHandler;
 import com.ecommerce.application.model.CartItem;
 import com.ecommerce.application.model.Product;
 import com.ecommerce.application.repository.OrderDetailRepository;
@@ -17,13 +18,15 @@ public class CartItemService {
     private final ProductRepository productRepository;
     private final CartHandler cartHandler;
     private final OrderDetailRepository orderDetailRepository;
+    private final StockHandler stockHandler;
 
     @Autowired
-    public CartItemService(CartItemRepository cartRepository, ProductRepository productRepository, CartHandler cartHandler, OrderDetailRepository orderDetailRepository) {
+    public CartItemService(CartItemRepository cartRepository, ProductRepository productRepository, CartHandler cartHandler, OrderDetailRepository orderDetailRepository, StockHandler stockHandler) {
         this.cartItemRepository = cartRepository;
         this.productRepository = productRepository;
         this.cartHandler = cartHandler;
         this.orderDetailRepository = orderDetailRepository;
+        this.stockHandler = stockHandler;
     }
 
     public Object getCarts(){
@@ -31,10 +34,7 @@ public class CartItemService {
     }
 
     public Optional<CartItem> getSingleCart(Long id){
-        boolean exists = cartItemRepository.existsById(id);
-        if(!exists){
-            throw new IllegalStateException("Product id: " + id + " does not exists.");
-        }
+        cartItemRepository.findById(id).orElseThrow(() -> new IllegalStateException("Product id: " + id + " does not exists."));
         return cartItemRepository.findById(id);
     }
 
@@ -49,32 +49,27 @@ public class CartItemService {
             throw new IllegalStateException("Product is already in your cart list.");
 
         // Check if the quantity is zero or less than the cart quantity
-        Product productStocks = productRepository.findById(cartItem.getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
-        if(productStocks.getStocks() == 0)
-            throw new IllegalStateException("Sorry this product is out of stock.");
+        stockHandler.ValidationStock(cartItem.getProduct_id());
 
         // Check if Cart quantity given is greater than the current product stocks
-        if(cartItem.getQuantity() > productStocks.getStocks())
-            throw new IllegalStateException("Product stock(s) is only " + productStocks.getStocks() + ", Please update your quantity");
+        stockHandler.ValidationStock(cartItem.getProduct_id(), cartItem.getQuantity());
 
         cartItem.setPrice(product.getPrice() * cartItem.getQuantity());
+
         return cartItemRepository.save(cartItem);
     }
 
     public Object deleteCart(Long id){
-
-        // Trigger for delete All
+        // Delete All
         if(id == 0){
             cartItemRepository.deleteAll();
             return cartHandler.GenerateResponse();
         }
 
-        boolean exists = cartItemRepository.existsById(id);
-        if(!exists){
-            throw  new IllegalStateException("Product does not exists.");
-        }
-        // delete single product
+        // Delete Single Product
+        cartItemRepository.findById(id).orElseThrow(() -> new IllegalStateException("Cart Item does not exists"));
         cartItemRepository.deleteById(id);
+
         return cartHandler.GenerateResponse();
     }
 
@@ -87,13 +82,10 @@ public class CartItemService {
             throw  new IllegalStateException("your quantity cannot be zero value.");
 
         // Check if the quantity is zero or less than the cart quantity
-        Product productStocks = productRepository.findById(cartItem.getProduct_id()).orElseThrow(() -> new IllegalStateException("Product does not exists"));
-        if(productStocks.getStocks() == 0)
-            throw new IllegalStateException("Sorry this product is out of stock.");
+        stockHandler.ValidationStock(cartItem.getProduct_id());
 
         // Check if Cart quantity given is greater than the current product stocks
-        if(cartItem.getQuantity() > productStocks.getStocks())
-            throw new IllegalStateException("Product stock(s) is only " + productStocks.getStocks() + ", Please update your quantity");
+        stockHandler.ValidationStock(cartItem.getProduct_id(), cartItem.getQuantity());
 
         // Get price
         Product product = productRepository.findById(cartItemToUpdate.getProduct_id())
@@ -105,6 +97,5 @@ public class CartItemService {
 
         return cartItemRepository.save(cartItemToUpdate);
     }
-
 
 }

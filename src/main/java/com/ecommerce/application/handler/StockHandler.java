@@ -17,6 +17,25 @@ public class StockHandler {
         this.productRepository = productRepository;
     }
 
+    // Stock validation
+    public void ValidationStock(Long productId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalStateException("Product does not exists"));
+
+        if(product.getStocks() == 0){
+            throw new IllegalStateException("Sorry " + product.getName() + " is out of stock right now");
+        }
+    }
+
+    public void ValidationStock(Long productId, Integer cartItemQuantity){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalStateException("Product does not exists"));
+
+        if(cartItemQuantity > product.getStocks()){
+            throw new IllegalStateException("Item stock left is " + product.getStocks() + " only, please change your quantity.");
+        }
+    }
+
     // This will pull update the product stock by subtracting the quantity given input
     public void PullStock(CartItem cartItem){
         Integer quantity = cartItem.getQuantity();
@@ -32,5 +51,4 @@ public class StockHandler {
         productStock.setStocks(productStock.getStocks() + quantity);
         productRepository.save(productStock);
     }
-
 }

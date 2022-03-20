@@ -28,11 +28,7 @@ public class CategoryService {
     }
 
     public Optional<Category> getSingleCategory(Long id){
-        boolean exists = categoryRepository.existsById(id);
-        if(!exists){
-            throw new IllegalStateException("Category does not exists");
-        }
-
+        categoryRepository.findById(id).orElseThrow(() -> new IllegalStateException("Category does not exist"));
         return categoryRepository.findById(id);
     }
 
@@ -41,10 +37,7 @@ public class CategoryService {
     }
 
     public void deleteCategory(Long id){
-        boolean exists = categoryRepository.existsById(id);
-        if(!exists){
-            throw new IllegalStateException("Category does not exists");
-        }
+        categoryRepository.findById(id).orElseThrow(() -> new IllegalStateException("Category does not exist"));
         categoryRepository.deleteById(id);
     }
 
@@ -52,8 +45,6 @@ public class CategoryService {
         Category categoryExists = categoryRepository.findById(id).orElseThrow(() -> new IllegalStateException("Category does not exist"));
         categoryExists.setName(category.getName());
         categoryExists.setDescription(category.getDescription());
-
         return categoryRepository.save(categoryExists);
     }
-
 }
