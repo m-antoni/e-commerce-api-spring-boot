@@ -15,10 +15,7 @@ public class OrderDetailService {
     private final OrderDetailRepository orderDetailRepository;
     private final OrderItemRepository orderItemRepository;
     private final CartItemRepository cartItemRepository;
-    private final DeliveryAddressRepository deliveryAddressRepository;
     private final OrderHandler orderHandler;
-    private final PaymentDetailRepository paymentDetailRepository;
-    private final ProductRepository productRepository;
     private final StockHandler stockHandler;
 
     @Autowired
@@ -26,25 +23,28 @@ public class OrderDetailService {
             OrderDetailRepository orderDetailRepository,
             OrderItemRepository orderItemRepository,
             CartItemRepository cartItemRepository,
-            DeliveryAddressRepository deliveryAddressRepository,
             OrderHandler orderHandler,
-            PaymentDetailRepository paymentDetailRepository,
-            ProductRepository productRepository,
             StockHandler stockHandler) {
 
         this.orderDetailRepository = orderDetailRepository;
         this.orderItemRepository = orderItemRepository;
         this.cartItemRepository = cartItemRepository;
-        this.deliveryAddressRepository = deliveryAddressRepository;
         this.orderHandler = orderHandler;
-        this.paymentDetailRepository = paymentDetailRepository;
-        this.productRepository = productRepository;
         this.stockHandler = stockHandler;
     }
 
     public List<OrderDetail> getOrderDetails(){
         List<OrderDetail> orderDetails = new ArrayList<>();
         orderDetailRepository.findAllByOrderByIdDesc().forEach(orderDetails::add);
+
+        List<OrderDetail> orderDetailList = new ArrayList<>();
+        for(OrderDetail orderDetail: orderDetails)
+        {
+            Long total_amount = orderDetail.getPaymentDetail().getTotal_amount();
+            orderDetail.setTotal_amount(total_amount);
+            orderDetailList.add(orderDetail);
+        }
+
         return orderDetails;
     }
 
@@ -62,6 +62,9 @@ public class OrderDetailService {
 
         CartItem cartItem = cartItemRepository.findById(cart_item_id)
                 .orElseThrow(() -> new IllegalStateException("Product does not exists in your cart"));
+
+        // Validate Voucher Code
+        orderHandler.ValidateVoucherCode(REQUEST_PAYLOAD.get("voucher_code"));
 
         // Save the OrderDetail
         OrderDetail createOrderDetail = new OrderDetail(1L, cartItem.getPrice(), orderHandler.generateOrderNo());
@@ -83,8 +86,12 @@ public class OrderDetailService {
     public Object createAllOrderDetail(Map<String, String> REQUEST_PAYLOAD){
         List<CartItem> cartItems = cartItemRepository.findAll();
 
-        if(cartItems.size() == 0)
+        if(cartItems.size() == 0){
             throw new IllegalStateException("You have 0 products in your cart, please add at least one product");
+        }
+
+        // Validate Voucher Code
+        orderHandler.ValidateVoucherCode(REQUEST_PAYLOAD.get("voucher_code"));
 
         // Save the OrderDetail
         Long total_amount = Long.valueOf(cartItems.stream().mapToInt(x -> Math.toIntExact(x.getPrice())).sum());

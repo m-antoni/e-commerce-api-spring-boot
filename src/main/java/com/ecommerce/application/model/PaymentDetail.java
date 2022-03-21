@@ -24,7 +24,7 @@ public class PaymentDetail extends BaseEntity {
     private String payment_type; // COD, ONLINE BANKING
     private String payment_status; // UNPAID, PAID
     private Long total_amount;
-
+    private String voucher_code;
 
     // One to One
     @JsonIgnore
@@ -35,7 +35,7 @@ public class PaymentDetail extends BaseEntity {
     public PaymentDetail() {
     }
 
-    public PaymentDetail(Long user_id, Long order_id, Long discount, Long delivery_fee, String payment_type, String payment_status, Long total_amount) {
+    public PaymentDetail(Long user_id, Long order_id, Long discount, Long delivery_fee, String payment_type, String payment_status, Long total_amount, String voucher_code) {
         this.user_id = user_id;
         this.order_id = order_id;
         this.discount = discount;
@@ -43,6 +43,7 @@ public class PaymentDetail extends BaseEntity {
         this.payment_type = payment_type;
         this.payment_status = payment_status;
         this.total_amount = total_amount;
+        this.voucher_code = voucher_code;
     }
 
     public PaymentDetail getPaymentDetail() {
@@ -117,6 +118,14 @@ public class PaymentDetail extends BaseEntity {
         this.total_amount = total_amount;
     }
 
+    public String getVoucher_code() {
+        return voucher_code;
+    }
+
+    public void setVoucher_code(String voucher_code) {
+        this.voucher_code = voucher_code;
+    }
+
     @Override
     public String toString() {
         return "PaymentDetail{" +
@@ -128,6 +137,8 @@ public class PaymentDetail extends BaseEntity {
                 ", payment_type='" + payment_type + '\'' +
                 ", payment_status='" + payment_status + '\'' +
                 ", total_amount=" + total_amount +
+                ", voucher_code='" + voucher_code + '\'' +
+                ", paymentDetail=" + paymentDetail +
                 '}';
     }
 }

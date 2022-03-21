@@ -3,11 +3,14 @@ package com.ecommerce.application.handler;
 import com.ecommerce.application.model.DeliveryAddress;
 import com.ecommerce.application.model.OrderDetail;
 import com.ecommerce.application.model.PaymentDetail;
+import com.ecommerce.application.model.Voucher;
 import com.ecommerce.application.repository.DeliveryAddressRepository;
 import com.ecommerce.application.repository.PaymentDetailRepository;
+import com.ecommerce.application.repository.VoucherRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -16,10 +19,12 @@ public class OrderHandler {
 
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final PaymentDetailRepository paymentDetailRepository;
+    private final VoucherRepository voucherRepository;
 
-    public OrderHandler(DeliveryAddressRepository deliveryAddressRepository, PaymentDetailRepository paymentDetailRepository) {
+    public OrderHandler(DeliveryAddressRepository deliveryAddressRepository, PaymentDetailRepository paymentDetailRepository, VoucherRepository voucherRepository) {
         this.deliveryAddressRepository = deliveryAddressRepository;
         this.paymentDetailRepository = paymentDetailRepository;
+        this.voucherRepository = voucherRepository;
     }
 
     public Object GenerateResponse(OrderDetail orderDetail, Object orderItems, Long totalAmount, Map<String, String> REQUEST_PAYLOAD) {
@@ -67,17 +72,37 @@ public class OrderHandler {
         String PAYMENT_STATUS = REQUEST_PAYLOAD.get("payment_type").equals("COD") ? "UNPAID" : "PAID";
         paymentDetail.setPayment_status(PAYMENT_STATUS);
 
+
         /* "Modify the total_amount from order details"
-         *  - Add the delivery fee to total amount from orders
-         *  - Subtract discount
+         * - Applied discount if voucher exists
+         * - Add the delivery fee to total amount from orders
+         * - Subtract discount
         */
-        Long COMPUTE_A = Long.valueOf(orderDetailTotalAmount + paymentDetail.getDelivery_fee());
-        Long COMPUTE_B = COMPUTE_A - paymentDetail.getDiscount();
-        paymentDetail.setTotal_amount(COMPUTE_B);
+        Long FINAL_TOTAL_AMOUNT = 0L;
+
+        if(!REQUEST_PAYLOAD.get("voucher_code").equals("n/a"))
+        {
+            List<Voucher> voucherCode = voucherRepository.findByVoucherCode(REQUEST_PAYLOAD.get("voucher_code"));
+            paymentDetail.setDiscount(voucherCode.get(0).getDiscount());
+            paymentDetail.setVoucher_code(REQUEST_PAYLOAD.get("voucher_code"));
+
+            Long DELIVERY_FEE = Long.valueOf(orderDetailTotalAmount + paymentDetail.getDelivery_fee());
+            FINAL_TOTAL_AMOUNT = DELIVERY_FEE - voucherCode.get(0).getDiscount();
+
+            // Update the voucher code;
+            this.UpdateVoucherCodeAvailability(voucherCode.get(0).getId());
+        }
+        else
+        {
+            FINAL_TOTAL_AMOUNT = Long.valueOf(orderDetailTotalAmount + paymentDetail.getDelivery_fee());
+        }
+
+        paymentDetail.setTotal_amount(FINAL_TOTAL_AMOUNT);
 
         return paymentDetailRepository.save(paymentDetail);
     }
 
+    // Generate order no
     public Long generateOrderNo(){
         long min = 100000000000L;
         long max = 999999999999L;
@@ -86,6 +111,25 @@ public class OrderHandler {
 
         return randomLong;
     }
+
+    // Validate voucher code
+    public void ValidateVoucherCode(String voucher_code){
+        if(!voucher_code.equals("n/a"))
+        {
+            List<Voucher> voucherCode = voucherRepository.findByVoucherCode(voucher_code);
+
+            // voucher code does not exists OR voucher code exists but expired
+            if(voucherCode.isEmpty() || voucherCode.get(0).getAvailable().equals(0L))
+                throw new IllegalStateException("Voucher code is either invalid or expired");
+        }
+    }
+
+    public void UpdateVoucherCodeAvailability(Long id){
+        Voucher voucher = voucherRepository.findById(id).orElseThrow(() -> new IllegalStateException("Voucher does not exists"));
+        voucher.setAvailable(voucher.getAvailable() - 1);
+        voucherRepository.save(voucher);
+    }
+
 
     // This will generate random string and numbers
     private String generateRandomChars() {
