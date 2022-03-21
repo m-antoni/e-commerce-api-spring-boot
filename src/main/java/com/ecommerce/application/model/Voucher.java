@@ -1,6 +1,8 @@
 package com.ecommerce.application.model;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "vouchers")
@@ -14,6 +16,9 @@ public class Voucher extends BaseEntity{
     private Long discount;
     private Long available;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "voucher", cascade = CascadeType.ALL, orphanRemoval = false, targetEntity = PaymentDetail.class)
+    private Set<PaymentDetail> payment_detail_list = new HashSet<>();
+
     public Voucher() {
     }
 
@@ -21,6 +26,14 @@ public class Voucher extends BaseEntity{
         this.voucher_code = voucher_code;
         this.discount = discount;
         this.available = available;
+    }
+
+    public Set<PaymentDetail> getPayment_detail_list() {
+        return payment_detail_list;
+    }
+
+    public void setPayment_detail_list(Set<PaymentDetail> payment_detail_list) {
+        this.payment_detail_list = payment_detail_list;
     }
 
     public Long getId() {

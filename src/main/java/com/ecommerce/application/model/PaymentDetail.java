@@ -32,6 +32,12 @@ public class PaymentDetail extends BaseEntity {
     @JoinColumn(name = "order_id", referencedColumnName = "id", nullable = false, insertable=false, updatable=false)
     private PaymentDetail paymentDetail;
 
+    // Many to One
+    @JsonIgnore
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_code", referencedColumnName = "voucher_code", nullable = false, insertable = false, updatable = false)
+    private Voucher voucher;
+
     public PaymentDetail() {
     }
 
@@ -44,6 +50,14 @@ public class PaymentDetail extends BaseEntity {
         this.payment_status = payment_status;
         this.total_amount = total_amount;
         this.voucher_code = voucher_code;
+    }
+
+    public Voucher getVoucher() {
+        return voucher;
+    }
+
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
     }
 
     public PaymentDetail getPaymentDetail() {

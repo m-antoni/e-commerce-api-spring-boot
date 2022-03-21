@@ -72,7 +72,6 @@ public class OrderHandler {
         String PAYMENT_STATUS = REQUEST_PAYLOAD.get("payment_type").equals("COD") ? "UNPAID" : "PAID";
         paymentDetail.setPayment_status(PAYMENT_STATUS);
 
-
         /* "Modify the total_amount from order details"
          * - Applied discount if voucher exists
          * - Add the delivery fee to total amount from orders
